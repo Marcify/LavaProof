@@ -1,5 +1,6 @@
 package me.marcify.lavaProof;
 
+import me.marcify.lavaProof.commands.ReloadCommand;
 import me.marcify.lavaProof.config.LavaConfig;
 import me.marcify.lavaProof.events.BurnEvent;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -14,6 +15,7 @@ public final class LavaProof extends JavaPlugin {
         saveDefaultConfig();
         LavaConfig.getInstance().load();
         getServer().getPluginManager().registerEvents(new BurnEvent(), this);
+        getCommand("lavaproof").setExecutor(new ReloadCommand());
 
         getLogger().info("LavaProof has been enabled!");
     }
