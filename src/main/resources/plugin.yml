@@ -1,0 +1,15 @@
+name: LavaProof
+version: '1.0'
+main: me.marcify.lavaProof.LavaProof
+api-version: '1.21'
+
+commands:
+  lavaproof:
+    description: LavaProof command
+    usage: /lavaproof
+
+permissions:
+  lavaproof.reload:
+    description: Reload the config.yml file
+    default: op
+

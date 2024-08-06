@@ -1,0 +1,8 @@
+# List of items that won't burn in lava
+no-burn-items:
+  - DIAMOND
+  - DIAMOND_SWORD
+
+messages:
+  no-permission: '&8[&6LavaProof&8] &eYou do not have permission to use this command!'
+  reload-message: '&8[&6LavaProof&8] &eConfig reloaded!'
