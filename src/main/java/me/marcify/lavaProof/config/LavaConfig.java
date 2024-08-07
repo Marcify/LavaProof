@@ -54,7 +54,7 @@ public class LavaConfig {
         return config.getString(message);
     }
 
-    public static List<String> getNoBurnItems() {
+    public List<String> getNoBurnItems() {
         return config.getStringList("no-burn-items");
     }
 }

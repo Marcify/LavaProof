@@ -1,4 +1,5 @@
 # List of items that won't burn in lava
+#
 no-burn-items:
   - DIAMOND
   - DIAMOND_SWORD
