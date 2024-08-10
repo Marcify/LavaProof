@@ -1,9 +1,24 @@
-# List of items that won't burn in lava
-#
+# List of items that won't burn in lava (e.g. DIAMOND)
 no-burn-items:
   - DIAMOND
   - DIAMOND_SWORD
 
 messages:
+  added-item: '&8[&6LavaProof&8] &eAdded &6%item% &eto the list.'
+  removed-item: '&8[&6LavaProof&8] &eRemoved &6%item% &efrom the list.'
+  add-usage: '&8[&6LavaProof&8] &eUsage: /lavaproof add <item>'
+  remove-usage: '&8[&6LavaProof&8] &eUsage: /lavaproof remove <item>'
+  already-added: '&8[&6LavaProof&8] &eItem already exists from the list!'
+  item-not-found: '&8[&6LavaProof&8] &6%item% &edoes not exist on the list!'
+  invalid-item: '&8[&6LavaProof&8] &eInvalid item!'
+  unknown-command: '&8[&6LavaProof&8] &eUnknown command.'
   no-permission: '&8[&6LavaProof&8] &eYou do not have permission to use this command!'
   reload-message: '&8[&6LavaProof&8] &eConfig reloaded!'
+
+  # Header for the help command output.
+  help-header: "&6&lLavaProof Help"
+
+  # Format for each command description in the help command output.
+  # %command% is the command name.
+  # %description% is the command description.
+  help-commands: "&6/%command% &f- &e%description%"

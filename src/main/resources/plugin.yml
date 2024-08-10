@@ -1,5 +1,5 @@
 name: LavaProof
-version: '1.0'
+version: '1.1'
 main: me.marcify.lavaProof.LavaProof
 api-version: '1.21'
 
@@ -9,7 +9,20 @@ commands:
     usage: /lavaproof
 
 permissions:
+  lavaproof.admin:
+    description: Permission to use all LavaProof commands
+    default: op
+    children:
+        lavaproof.reload: true
+        lavaproof.add: true
+        lavaproof.remove: true
   lavaproof.reload:
     description: Reload the config.yml file
+    default: op
+  lavaproof.add:
+    description: Add an item to the no-burn-items list
+    default: op
+  lavaproof.remove:
+    description: Remove an item from the no-burn-items list
     default: op
 
