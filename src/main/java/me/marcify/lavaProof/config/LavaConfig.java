@@ -54,7 +54,7 @@ public class LavaConfig {
         return config.getString(message);
     }
 
-     public static List<String> getNoBurnItems() {
+    public static List<String> getNoBurnItems() {
         return config.getStringList("no-burn-items");
     }
 
@@ -69,6 +69,22 @@ public class LavaConfig {
         List<String> noBurnItems = getNoBurnItems();
         noBurnItems.remove(item);
         config.set("no-burn-items", noBurnItems);
+        LavaConfig.getInstance().save();
+    }
+
+    public static List<String> getNoExplosionItems() { return config.getStringList("no-explosion-items"); }
+
+    public static void addNoExplosionItem(String item) {
+        List<String> noExplosionItems = getNoExplosionItems();
+        noExplosionItems.add(item);
+        config.set("no-explosion-items", noExplosionItems);
+        LavaConfig.getInstance().save();
+    }
+
+    public static void removeNoExplosionItem(String item) {
+        List<String> noExplosionItems = getNoExplosionItems();
+        noExplosionItems.remove(item);
+        config.set("no-explosion-items", noExplosionItems);
         LavaConfig.getInstance().save();
     }
 }

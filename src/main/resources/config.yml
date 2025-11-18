@@ -3,13 +3,17 @@ no-burn-items:
   - DIAMOND
   - DIAMOND_SWORD
 
+# List of items that won't get damaged by explosions (e.g. EMERALD)
+no-explosion-items:
+  - EMERALD
+
 messages:
-  added-item: '&8[&6LavaProof&8] &eAdded &6%item% &eto the list.'
-  removed-item: '&8[&6LavaProof&8] &eRemoved &6%item% &efrom the list.'
-  add-usage: '&8[&6LavaProof&8] &eUsage: /lavaproof add <item>'
-  remove-usage: '&8[&6LavaProof&8] &eUsage: /lavaproof remove <item>'
-  already-added: '&8[&6LavaProof&8] &eItem already exists from the list!'
-  item-not-found: '&8[&6LavaProof&8] &6%item% &edoes not exist on the list!'
+  added-item: '&8[&6LavaProof&8] &eAdded &6%item% &eto the &6%list% &elist.'
+  removed-item: '&8[&6LavaProof&8] &eRemoved &6%item% &efrom the &6%list% &elist.'
+  add-usage: '&8[&6LavaProof&8] &eUsage: /lavaproof add <item> [lava | explosion | leave empty if you want to add the item on both]'
+  remove-usage: '&8[&6LavaProof&8] &eUsage: /lavaproof remove <item> [lava | explosion | leave empty if you want to remove the item from both]'
+  already-added: '&8[&6LavaProof&8] &e%item% already exists from the &6%list% &elist!'
+  item-not-found: '&8[&6LavaProof&8] &6%item% &edoes not exist on the &6%list% &elist!'
   invalid-item: '&8[&6LavaProof&8] &eInvalid item!'
   unknown-command: '&8[&6LavaProof&8] &eUnknown command.'
   no-permission: '&8[&6LavaProof&8] &eYou do not have permission to use this command!'

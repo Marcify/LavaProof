@@ -4,6 +4,7 @@ import me.marcify.lavaProof.commands.LavaCommands;
 import me.marcify.lavaProof.commands.LavaTab;
 import me.marcify.lavaProof.config.LavaConfig;
 import me.marcify.lavaProof.events.BurnEvent;
+import me.marcify.lavaProof.events.ExplosionEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class LavaProof extends JavaPlugin {
@@ -16,6 +17,7 @@ public final class LavaProof extends JavaPlugin {
         saveDefaultConfig();
         LavaConfig.getInstance().load();
         getServer().getPluginManager().registerEvents(new BurnEvent(this), this);
+        getServer().getPluginManager().registerEvents(new ExplosionEvent(), this);
         getCommand("lavaproof").setExecutor(new LavaCommands());
         getCommand("lavaproof").setTabCompleter(new LavaTab());
         getLogger().info("LavaProof has been enabled!");

@@ -1,5 +1,5 @@
 name: LavaProof
-version: '1.1'
+version: ${project.version}
 main: me.marcify.lavaProof.LavaProof
 api-version: '1.21'
 
@@ -20,9 +20,21 @@ permissions:
     description: Reload the config.yml file
     default: op
   lavaproof.add:
-    description: Add an item to the no-burn-items list
+    description: Add an item to the no-burn-items and no-explosion-items list
     default: op
+  lavaproof.add.lava:
+    description: Add an item to the no-burn-items list
+    default: false
+  lavaproof.add.explosion:
+    description: Add an item to the no-explosion-items list
+    default: false
   lavaproof.remove:
     description: Remove an item from the no-burn-items list
     default: op
+  lavaproof.remove.lava:
+    description: Remove an item from the no-burn-items list
+    default: false
+  lavaproof.remove.explosion:
+    description: Remove an item from the no-explosion-items list
+    default: false
 

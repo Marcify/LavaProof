@@ -17,8 +17,12 @@ public class LavaCommands implements CommandExecutor {
     public static final Map<String, CommandInfo> commands = new LinkedHashMap<>();
 
     public LavaCommands() {
-        commands.put("lavaproof add", new CommandInfo("Add an item to the list of items that won't burn in lava.", "lavaproof.add"));
-        commands.put("lavaproof remove", new CommandInfo("Remove an item from the list of items that won't burn in lava.", "lavaproof.remove"));
+        commands.put("lavaproof add [item] [lava | explosion | empty for both]", new CommandInfo("Add an item to the list of items that won't burn in lava or get damaged by explosions.", "lavaproof.add"));
+        commands.put("lavaproof add [item] lava", new CommandInfo("Add an item to the list of items that won't burn in lava.", "lavaproof.add.lava"));
+        commands.put("lavaproof add [item] explosion", new CommandInfo("Add an item to the list of items that won't get damaged by explosions.", "lavaproof.add.explosion"));
+        commands.put("lavaproof remove [item] [lava | explosion | empty for both]", new CommandInfo("Remove an item from the list of items that won't burn in lava or get damaged by explosions.", "lavaproof.remove"));
+        commands.put("lavaproof remove [item] lava", new CommandInfo("Remove an item from the list of items that won't burn in lava.", "lavaproof.remove.lava"));
+        commands.put("lavaproof remove [item] explosion", new CommandInfo("Remove an item from the list of items that won't get damaged by explosions.", "lavaproof.remove.explosion"));
         commands.put("lavaproof reload", new CommandInfo("Reload the plugin's configuration.", "lavaproof.reload"));
     }
 
@@ -28,7 +32,9 @@ public class LavaCommands implements CommandExecutor {
         if (args.length == 1) {
             switch(args[0]) {
                 case "add":
-                    if (sender.hasPermission("lavaproof.add")) {
+                    if (sender.hasPermission("lavaproof.add") ||
+                            sender.hasPermission("lavaproof.add.lava") ||
+                            sender.hasPermission("lavaproof.add.explosion")) {
                         sender.sendMessage(ChatColor.translateAlternateColorCodes('&', LavaConfig.getInstance().getMessage("messages.add-usage")));
                         return true;
                     } else {
@@ -55,12 +61,12 @@ public class LavaCommands implements CommandExecutor {
                 case "help":
                     sender.sendMessage(ChatColor.translateAlternateColorCodes('&', LavaConfig.getInstance().getMessage("messages.help-header")));
                     for (Map.Entry<String, CommandInfo> entry : commands.entrySet()) {
-                        String commanda = entry.getKey();
+                        String commands = entry.getKey();
                         CommandInfo info = entry.getValue();
 
                         if (sender.hasPermission(info.getPermission())) {
                             sender.sendMessage(ChatColor.translateAlternateColorCodes('&', LavaConfig.getInstance().getMessage("messages.help-commands")
-                                    .replace("%command%", commanda)
+                                    .replace("%command%", commands)
                                     .replace("%description%", info.getDescription())));
                         }
                     }
@@ -71,50 +77,154 @@ public class LavaCommands implements CommandExecutor {
             }
         }
 
-        if (args.length > 1) {
+        if (args.length >= 2) {
             switch (args[0]) {
-                case "add":
-                    if (sender.hasPermission("lavaproof.add")) {
-                        String itemName = args[1].toUpperCase();
-                        Material material = Material.getMaterial(itemName);
-                        if (material == null) {
-                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', LavaConfig.getInstance().getMessage("messages.invalid-item")));
+                case "add": {
+                    String itemName = args[1].toUpperCase();
+                    Material material = Material.getMaterial(itemName);
+
+                    if (material == null) {
+                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', LavaConfig.getInstance().getMessage("messages.invalid-item")));
+                        return true;
+                    }
+
+                    String type = args.length > 2 ? args[2].toLowerCase() : "both";
+                    boolean hasFullPerm = sender.hasPermission("lavaproof.add");
+                    boolean hasLavaPerm = sender.hasPermission("lavaproof.add.lava");
+                    boolean hasExplosionPerm = sender.hasPermission("lavaproof.add.explosion");
+
+                    if (type.equals("lava") || type.equals("fire")) {
+                        if (!hasFullPerm && !hasLavaPerm) {
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', LavaConfig.getInstance().getMessage("messages.no-permission")));
                             return true;
                         }
 
                         if (LavaConfig.getNoBurnItems().contains(material.toString())) {
-                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', LavaConfig.getInstance().getMessage("messages.already-added")));
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', LavaConfig.getInstance().getMessage("messages.already-added")).replace("%item", material.toString()).replace("%list%", "no-burn-items"));
                             return true;
-                        } else {
+                        }
+
+                        LavaConfig.addNoBurnItem(material.toString());
+                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', LavaConfig.getInstance().getMessage("messages.added-item").replace("%item%", material.toString()).replace("%list%", "no-burn-items")));
+                        return true;
+                    } else if (type.equals("explosion")) {
+                        if (!hasFullPerm && !hasExplosionPerm) {
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', LavaConfig.getInstance().getMessage("messages.no-permission")));
+                            return true;
+                        }
+
+                        if (LavaConfig.getNoExplosionItems().contains(material.toString())) {
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', LavaConfig.getInstance().getMessage("messages.already-added")).replace("%item", material.toString()).replace("%list%", "no-explosion-items"));
+                            return true;
+                        }
+
+                        LavaConfig.addNoExplosionItem(material.toString());
+                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', LavaConfig.getInstance().getMessage("messages.added-item").replace("%item%", material.toString()).replace("%list%", "no-explosion-items")));
+                        return true;
+                    } else {
+                        // "both" case - only lavaproof.add can do this
+                        if (!hasFullPerm) {
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', LavaConfig.getInstance().getMessage("messages.no-permission")));
+                            return true;
+                        }
+
+                        boolean lavaExists = LavaConfig.getNoBurnItems().contains(material.toString());
+                        boolean explosionExists = LavaConfig.getNoExplosionItems().contains(material.toString());
+
+                        if (lavaExists && explosionExists) {
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', LavaConfig.getInstance().getMessage("messages.already-added")).replace("%item", material.toString()).replace("%list%", "no-burn-items and no-explosion-items"));
+                            return true;
+                        }
+
+                        if (!lavaExists && !explosionExists) {
                             LavaConfig.addNoBurnItem(material.toString());
-                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', LavaConfig.getInstance().getMessage("messages.added-item").replace("%item%", material.toString())));
+                            LavaConfig.addNoExplosionItem(material.toString());
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', LavaConfig.getInstance().getMessage("messages.added-item").replace("%item%", material.toString()).replace("%list%", "no-burn-items and no-explosion-items")));
+                            return true;
+                        } else if (!lavaExists) {
+                            LavaConfig.addNoBurnItem(material.toString());
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', LavaConfig.getInstance().getMessage("messages.added-item").replace("%item%", material.toString()).replace("%list%", "no-burn-items")));
+                            return true;
+                        } else if (!explosionExists) {
+                            LavaConfig.addNoExplosionItem(material.toString());
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', LavaConfig.getInstance().getMessage("messages.added-item").replace("%item%", material.toString()).replace("%list%", "no-explosion-items")));
                             return true;
                         }
-                    } else {
-                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', LavaConfig.getInstance().getMessage("messages.no-permission")));
+                    }
+                }
+                case "remove": {
+                    String removeItemName = args[1].toUpperCase();
+                    Material removeMaterial = Material.getMaterial(removeItemName);
+
+                    if (removeMaterial == null) {
+                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', LavaConfig.getInstance().getMessage("messages.invalid-item")));
                         return true;
                     }
-                case "remove":
-                    if (sender.hasPermission("lavaproof.remove")) {
-                        String itemName = args[1].toUpperCase();
-                        Material material = Material.getMaterial(itemName);
-                        if (material == null) {
-                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', LavaConfig.getInstance().getMessage("messages.invalid-item")));
+
+                    String removeType = args.length > 2 ? args[2].toLowerCase() : "both";
+                    boolean hasFullPerm = sender.hasPermission("lavaproof.remove");
+                    boolean hasLavaPerm = sender.hasPermission("lavaproof.remove.lava");
+                    boolean hasExplosionPerm = sender.hasPermission("lavaproof.remove.explosion");
+
+                    if (removeType.equals("lava") || removeType.equals("fire")) {
+                        if (!hasFullPerm && !hasLavaPerm) {
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', LavaConfig.getInstance().getMessage("messages.no-permission")));
                             return true;
                         }
 
-                        if (LavaConfig.getNoBurnItems().contains(material.toString())) {
-                            LavaConfig.removeNoBurnItem(material.toString());
-                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', LavaConfig.getInstance().getMessage("messages.removed-item").replace("%item%", material.toString())));
+                        if (LavaConfig.getNoBurnItems().contains(removeMaterial.toString())) {
+                            LavaConfig.removeNoBurnItem(removeMaterial.toString());
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', LavaConfig.getInstance().getMessage("messages.removed-item").replace("%item%", removeMaterial.toString()).replace("%list%", "no-burn-items")));
                             return true;
                         } else {
-                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', LavaConfig.getInstance().getMessage("messages.item-not-found").replace("%item%", material.toString())));
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', LavaConfig.getInstance().getMessage("messages.item-not-found").replace("%item%", removeMaterial.toString()).replace("%list%", "no-burn-items")));
+                            return true;
+                        }
+                    } else if (removeType.equals("explosion")) {
+                        if (!hasFullPerm && !hasExplosionPerm) {
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', LavaConfig.getInstance().getMessage("messages.no-permission")));
+                            return true;
+                        }
+
+                        if (LavaConfig.getNoExplosionItems().contains(removeMaterial.toString())) {
+                            LavaConfig.removeNoExplosionItem(removeMaterial.toString());
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', LavaConfig.getInstance().getMessage("messages.removed-item").replace("%item%", removeMaterial.toString()).replace("%list%", "no-explosion-items")));
+                            return true;
+                        } else {
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', LavaConfig.getInstance().getMessage("messages.item-not-found").replace("%item%", removeMaterial.toString()).replace("%list%", "no-explosion-items")));
                             return true;
                         }
                     } else {
-                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', LavaConfig.getInstance().getMessage("messages.no-permission")));
-                        return true;
+                        // "both" case - only lavaproof.remove can do this
+                        if (!hasFullPerm) {
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', LavaConfig.getInstance().getMessage("messages.no-permission")));
+                            return true;
+                        }
+
+                        boolean lavaExists = LavaConfig.getNoBurnItems().contains(removeMaterial.toString());
+                        boolean explosionExists = LavaConfig.getNoExplosionItems().contains(removeMaterial.toString());
+
+                        if (!lavaExists && !explosionExists) {
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', LavaConfig.getInstance().getMessage("messages.item-not-found").replace("%item%", removeMaterial.toString()).replace("%list%", "no-burn-items and no-explosion-items")));
+                            return true;
+                        }
+
+                        if (lavaExists && explosionExists) {
+                            LavaConfig.removeNoBurnItem(removeMaterial.toString());
+                            LavaConfig.removeNoExplosionItem(removeMaterial.toString());
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', LavaConfig.getInstance().getMessage("messages.removed-item").replace("%item%", removeMaterial.toString()).replace("%list%", "no-burn-items and no-explosion-items")));
+                            return true;
+                        } else if (lavaExists) {
+                            LavaConfig.removeNoBurnItem(removeMaterial.toString());
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', LavaConfig.getInstance().getMessage("messages.removed-item").replace("%item%", removeMaterial.toString()).replace("%list%", "no-burn-items")));
+                            return true;
+                        } else if (explosionExists) {
+                            LavaConfig.removeNoExplosionItem(removeMaterial.toString());
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', LavaConfig.getInstance().getMessage("messages.removed-item").replace("%item%", removeMaterial.toString()).replace("%list%", "no-explosion-items")));
+                            return true;
+                        }
                     }
+                }
                 default:
                     sender.sendMessage(ChatColor.translateAlternateColorCodes('&', LavaConfig.getInstance().getMessage("messages.unknown-command")));
                     return true;
