@@ -17,12 +17,11 @@ public class ExplosionEvent implements Listener {
         Entity entity = e.getEntity();
         if (entity instanceof Item item) {
             String material = item.getItemStack().getType().toString();
-            List<String> noBurnItems = LavaConfig.getNoBurnItems();
+            List<String> noExplosionItems = LavaConfig.getNoExplosionItems();
 
-            if (noBurnItems.contains(material)) {
+            if (noExplosionItems.contains(material)) {
                 if (e.getCause() == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION ||
                     e.getCause() == EntityDamageEvent.DamageCause.BLOCK_EXPLOSION) {
-                    item.setInvulnerable(true);
                     e.setCancelled(true);
                 }
             }

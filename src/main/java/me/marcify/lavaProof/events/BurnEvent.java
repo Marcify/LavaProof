@@ -34,7 +34,10 @@ public class BurnEvent implements Listener {
             List<String> noBurnItems = LavaConfig.getNoBurnItems();
 
             if (noBurnItems.contains(material.toString())) {
-                if (e.getCause() == EntityDamageEvent.DamageCause.LAVA) {
+                EntityDamageEvent.DamageCause cause = e.getCause();
+                if (cause == EntityDamageEvent.DamageCause.LAVA || 
+                    cause == EntityDamageEvent.DamageCause.FIRE || 
+                    cause == EntityDamageEvent.DamageCause.FIRE_TICK) {
                     item.setInvulnerable(true);
                     itemsInLava.add(item);
                     e.setCancelled(true);
@@ -49,8 +52,13 @@ public class BurnEvent implements Listener {
             public void run() {
                 Set<Item> toRemove = new HashSet<>();
                 for (Item item : itemsInLava) {
-                    Block blockBelow = item.getLocation().getBlock();
-                    if (blockBelow.getType() != Material.LAVA) {
+                    if (item.isDead() || !item.isValid()) {
+                        toRemove.add(item);
+                        continue;
+                    }
+                    Block blockAtLocation = item.getLocation().getBlock();
+                    Material blockType = blockAtLocation.getType();
+                    if (blockType != Material.LAVA && blockType != Material.FIRE) {
                         item.setFireTicks(0);
                         item.setInvulnerable(false);
                         toRemove.add(item);
