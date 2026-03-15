@@ -1,6 +1,7 @@
 package me.marcify.lavaProof.events;
 
 import me.marcify.lavaProof.config.LavaConfig;
+import me.marcify.lavaProof.util.SchedulerUtil;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -10,7 +11,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashSet;
 import java.util.List;
@@ -47,25 +47,22 @@ public class BurnEvent implements Listener {
     }
 
     private void startLavaCheckTask() {
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                Set<Item> toRemove = new HashSet<>();
-                for (Item item : itemsInLava) {
-                    if (item.isDead() || !item.isValid()) {
-                        toRemove.add(item);
-                        continue;
-                    }
-                    Block blockAtLocation = item.getLocation().getBlock();
-                    Material blockType = blockAtLocation.getType();
-                    if (blockType != Material.LAVA && blockType != Material.FIRE) {
-                        item.setFireTicks(0);
-                        item.setInvulnerable(false);
-                        toRemove.add(item);
-                    }
+        SchedulerUtil.runTaskTimer(plugin, () -> {
+            Set<Item> toRemove = new HashSet<>();
+            for (Item item : itemsInLava) {
+                if (item.isDead() || !item.isValid()) {
+                    toRemove.add(item);
+                    continue;
                 }
-                itemsInLava.removeAll(toRemove);
+                Block blockAtLocation = item.getLocation().getBlock();
+                Material blockType = blockAtLocation.getType();
+                if (blockType != Material.LAVA && blockType != Material.FIRE) {
+                    item.setFireTicks(0);
+                    item.setInvulnerable(false);
+                    toRemove.add(item);
+                }
             }
-        }.runTaskTimer(plugin, 0L, 20L); // Check every second (20 ticks)
+            itemsInLava.removeAll(toRemove);
+        }, 0L, 20L); // Check every second (20 ticks)
     }
 }

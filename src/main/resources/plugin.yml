@@ -2,6 +2,7 @@ name: LavaProof
 version: ${project.version}
 main: me.marcify.lavaProof.LavaProof
 api-version: '1.21'
+folia-supported: true
 
 commands:
   lavaproof:
